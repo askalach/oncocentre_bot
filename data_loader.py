@@ -1,8 +1,10 @@
+import logging
+from io import BytesIO
+
 import requests
+from bs4 import BeautifulSoup
 
 import settings
-from io import BytesIO
-from bs4 import BeautifulSoup
 
 
 class DataLoader:
@@ -35,19 +37,20 @@ class DataLoader:
     def get_meta(self, raw_html_data) -> dict:
         resault = {}
 
-        resault['name'] = raw_html_data.find('strong', class_='text-overflow-ellipsis font-size-14').text
-        raw_teg_a = raw_html_data.find('a', class_='font-size-14 font-red treat-click')
-        resault['protocolid'] = raw_teg_a['data-protocolid']
-        resault['treat_code'] = raw_teg_a['data-treat-code']
-        resault['treat_company_id'] = raw_teg_a['data-treat-company-id']
-        resault['treat_hash'] = raw_teg_a['data-treat-hash']
-        resault['treat_place'] = raw_teg_a['data-treat-place']
-        resault['href'] = raw_teg_a['href']
-        resault['author'] = raw_html_data.find_all('div', class_='col-md-4 d-none d-sm-block')[0].text.strip()
-        resault['date'] = raw_html_data.find_all('div', class_='col-md-4 d-none d-sm-block')[1].contents[0].strip()
-        
-        # for k, v in resault.items():
-        #     print(f'{k}: {v}')
+        try:
+            resault['name'] = raw_html_data.find('strong', class_='text-overflow-ellipsis font-size-14').text
+            raw_teg_a = raw_html_data.find('a', class_='font-size-14 font-red treat-click')
+            resault['protocolid'] = raw_teg_a['data-protocolid']
+            resault['treat_code'] = raw_teg_a['data-treat-code']
+            resault['treat_company_id'] = raw_teg_a['data-treat-company-id']
+            resault['treat_hash'] = raw_teg_a['data-treat-hash']
+            resault['treat_place'] = raw_teg_a['data-treat-place']
+            resault['href'] = raw_teg_a['href']
+            resault['author'] = raw_html_data.find_all('div', class_='col-md-4 d-none d-sm-block')[0].text.strip()
+            resault['date'] = raw_html_data.find_all('div', class_='col-md-4 d-none d-sm-block')[1].contents[0].strip()
+        except Exception as e:
+            logging.info(e)
+            resault = {}
 
         return resault
 
@@ -71,7 +74,6 @@ class DataLoader:
         
         try:
             response = requests.get(url=self.treats_url, headers=self.headers, cookies=self.cookies)
-            print(response.status_code)
         except requests.exceptions.RequestException as e:
             print(e)
             exit()       
@@ -81,18 +83,16 @@ class DataLoader:
         items = soup.find_all('div', class_='row margin-bottom-15')
 
         for item in items:
-            resault.append(self.get_meta(item))
-
-        # notification = soup.find('form', id='SystemNotification')
-        # if notification:
-        #     print(notification.prettify())
+            data = self.get_meta(item)
+            if data:
+                resault.append(data)
 
         return resault
 
 
 def main():
     dl = DataLoader(settings.URL)
-    for count, item in enumerate(dl.get_data()):
+    for count, item in enumerate(dl.get_data()[:10]):
         print(count, item)
 
 

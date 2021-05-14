@@ -1,4 +1,5 @@
 import os
+import logging
 
 from dotenv import load_dotenv
 
@@ -6,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 URL = 'https://my.oncocentre.ru'
-DB = 'server.db'
+DB = os.path.join('db', 'documents.db')
 
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
@@ -21,3 +22,10 @@ _YM_ISAD = os.getenv('_YM_ISAD')
 _YM_D = os.getenv('_YM_D')
 _YM_UID = os.getenv('_YM_UID')
 HEALTHID = os.getenv('HEALTHID')
+
+
+logging.basicConfig(
+    format='%(asctime)s: %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)

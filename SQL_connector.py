@@ -1,9 +1,9 @@
+import logging
 import sqlite3
+from datetime import datetime
 
+import settings
 from data_loader import DataLoader
-
-
-url = 'https://my.oncocentre.ru'
 
 
 class SQLite_saver:
@@ -70,7 +70,12 @@ class SQLite_saver:
                 ))
                 self.connector.commit()
                 added_documents.append(item)
-        # print(f'[add_documents]: added {len(added_documents)} documents')
+        if added_documents:
+            logging.info(f'Added {len(added_documents)} new documents:')
+            for document in added_documents:
+                logging.info(f"{document['name']}\t{document['author']}\t{document['date']}")
+        else:
+            logging.info('no new documents')
         return added_documents
 
 
@@ -82,12 +87,12 @@ class SQLite_saver:
 
 
 def main():
-    with sqlite3.connect('server.db') as sqlite_conn:
+    with sqlite3.connect(settings.DB) as sqlite_conn:
         sqlite_saver = SQLite_saver(sqlite_conn)
 
         sqlite_saver.create_documents()
 
-        dl = DataLoader(url)
+        dl = DataLoader(settings.URL)
         sqlite_saver.add_documents(dl.get_data())
 
     # sqlite_saver.close_saver()
