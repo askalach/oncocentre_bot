@@ -25,6 +25,7 @@ HEALTHID = os.getenv('HEALTHID')
 
 
 logging.basicConfig(
+    filename='bot.log',
     format='%(asctime)s: %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S'
