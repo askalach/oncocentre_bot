@@ -75,8 +75,8 @@ class DataLoader:
         try:
             response = requests.get(url=self.treats_url, headers=self.headers, cookies=self.cookies)
         except requests.exceptions.RequestException as e:
-            print(e)
-            exit()       
+            logging.info(e)
+            # exit()
         
         soup = BeautifulSoup(response.text, 'lxml')
 
